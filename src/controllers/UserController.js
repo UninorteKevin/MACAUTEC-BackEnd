@@ -96,6 +96,42 @@ var controller = {
                 define_error: 'Log (UserController.getUsers): ' + error.message
             });
         }
+    },
+
+    getUser: function(req, res){
+        try {
+            User.findById(req.params.id,(err, user) => {
+                if(err){
+                    return res.status(MyResponse.CODE_ERROR).send({
+                        status: MyResponse.STATUS_ERROR,
+                        code: MyResponse.CODE_ERROR,
+                        message: 'Ocurrio un problema al traer el usuario.',
+                        define_error: 'Log (UserController.getUsers): ' + err.message
+                    });
+                }
+                if(!user){
+                    return res.status(MyResponse.CODE_WARNING).send({
+                        status: MyResponse.STATUS_WARNING,
+                        code: MyResponse.CODE_WARNING,
+                        message: 'No existen usuarios registrados'
+                    });
+                }
+                
+                return res.status(MyResponse.CODE_SUCCESS).send({
+                    status: MyResponse.STATUS_SUCCESS,
+                    code: MyResponse.CODE_SUCCESS,
+                    user
+                });
+
+            })
+        } catch (error) {
+            return res.status(MyResponse.CODE_ERROR).send({
+                status: MyResponse.STATUS_ERROR,
+                code: MyResponse.CODE_ERROR,
+                message: 'Ocurrio un problema en el controlador al intentar traer los usuarios.',
+                define_error: 'Log (UserController.getUsers): ' + error.message
+            });
+        }
     }
 
 }
