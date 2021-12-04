@@ -75,11 +75,16 @@ var controller = {
                         message: 'No existen usuarios registrados'
                     });
                 }
+                
+                var activos = users.filter(function (el) {
+                    return el.status == 'A';
+                });
 
                 return res.status(MyResponse.CODE_SUCCESS).send({
                     status: MyResponse.STATUS_SUCCESS,
                     code: MyResponse.CODE_SUCCESS,
-                    users
+                    users,
+                    activeusers: activos 
                 });
 
             })
