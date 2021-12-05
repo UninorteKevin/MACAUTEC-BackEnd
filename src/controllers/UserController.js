@@ -57,6 +57,48 @@ var controller = {
         
     },
 
+    updateUser: function(req, res){
+        let params = req.body;
+        console.log(params);
+        try {
+            User.findByIdAndUpdate(req.params.id,{
+                $set: params
+            },(err, result) => {
+                if(err){
+                    return res.status(MyResponse.CODE_ERROR).send({
+                        status: MyResponse.STATUS_ERROR,
+                        code: MyResponse.CODE_ERROR,
+                        message: 'Ocurrio un problema al intentar actualizar el usuario.',
+                        define_error: 'Log (UserController.save): ' + err.message
+                    });
+                }
+
+                if(!result){
+                    return res.status(MyResponse.CODE_WARNING).send({
+                        status: MyResponse.STATUS_WARNING,
+                        code: MyResponse.CODE_WARNING,
+                        message: 'No se pudo actualizar el usuario. Verifique la informacion registrada.'
+                    });    
+                }
+
+                return res.status(MyResponse.CODE_SUCCESS).send({
+                    status: MyResponse.STATUS_SUCCESS,
+                    code: MyResponse.CODE_SUCCESS,
+                    message: 'Usuario actualizado correctamente'
+                })
+            });
+        } catch (error) {
+            return res.status(MyResponse.CODE_ERROR).send({
+                status: MyResponse.STATUS_ERROR,
+                code: MyResponse.CODE_ERROR,
+                message: 'No se enviar los parametros correctamente al servidor.',
+                define_error: 'Log (UserController): ' + error.message
+            });
+        }
+
+        
+    },
+
     getUsers: function(req, res){
         try {
             User.find((err, users) => {
