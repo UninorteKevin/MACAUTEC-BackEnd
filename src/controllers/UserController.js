@@ -99,6 +99,47 @@ var controller = {
         
     },
 
+    getMecanicos: function(req, res){
+        try {
+            User.find({role:"Mecanico"},(err, users) => {
+                if(err){
+                    return res.status(MyResponse.CODE_ERROR).send({
+                        status: MyResponse.STATUS_ERROR,
+                        code: MyResponse.CODE_ERROR,
+                        message: 'Ocurrio un problema al traer los datos.',
+                        define_error: 'Log (UserController.getUsers): ' + err.message
+                    });
+                }
+                if(!users || users.length <= 0){
+                    return res.status(MyResponse.CODE_WARNING).send({
+                        status: MyResponse.STATUS_WARNING,
+                        code: MyResponse.CODE_WARNING,
+                        message: 'No existen usuarios registrados'
+                    });
+                }
+                
+                var activos = users.filter(function (el) {
+                    return el.status == 'A';
+                });
+
+                return res.status(MyResponse.CODE_SUCCESS).send({
+                    status: MyResponse.STATUS_SUCCESS,
+                    code: MyResponse.CODE_SUCCESS,
+                    users,
+                    activeusers: activos 
+                });
+
+            })
+        } catch (error) {
+            return res.status(MyResponse.CODE_ERROR).send({
+                status: MyResponse.STATUS_ERROR,
+                code: MyResponse.CODE_ERROR,
+                message: 'Ocurrio un problema en el controlador al intentar traer los usuarios.',
+                define_error: 'Log (UserController.getUsers): ' + error.message
+            });
+        }
+    },
+
     getUsers: function(req, res){
         try {
             User.find((err, users) => {
