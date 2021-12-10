@@ -10,6 +10,7 @@ var app = express();
 //ROUTES
 
 var user_routes = require('./routes/User');
+var person_routes = require('./routes/Person');
 
 //MIDDLEWARE
 app.use(bodyParser.urlencoded({extended: false}));
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 //API
 
 app.use('/api', user_routes);
-
+app.use('/api',person_routes);
 
 
 module.exports = app;

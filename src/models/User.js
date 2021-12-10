@@ -4,14 +4,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = Schema({
-    identity: String,
-    names: String,
-    surnames: String,
     email: {type: String, require:true,unique: true},
     password: String,
     image: String,
     role: String,
-    status: String
+    status: String,
+    person: {type: Schema.ObjectId, ref: 'Person', required: true}
 },
 {
     timestamps: true

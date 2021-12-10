@@ -12,15 +12,12 @@ var controller = {
 
         try {
             var newUser = new User();
-            newUser.identity = params.identity;
-            newUser.names = params.names;
-            newUser.surnames = params.surnames;
             newUser.email = params.email;
             newUser.password = params.password;
             newUser.image   = 'profile-default.png';
             newUser.status  = 'A';
             newUser.role    = params.role;
-
+            newUser.person = params.personId
             newUser.save((err, result) => {
                 if(err){
                     return res.status(MyResponse.CODE_ERROR).send({
@@ -142,7 +139,7 @@ var controller = {
 
     getUsers: function(req, res){
         try {
-            User.find((err, users) => {
+            User.find().populate('person').exec((err, users) => {
                 if(err){
                     return res.status(MyResponse.CODE_ERROR).send({
                         status: MyResponse.STATUS_ERROR,
