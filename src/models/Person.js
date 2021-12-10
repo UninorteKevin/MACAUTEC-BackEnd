@@ -10,8 +10,7 @@ var PersonSchema = Schema({
     surname_2: String,
     birth_date: Date,
     phone: {type:String, default: '---'},
-    location: {type: String, default: '---'},
-    status: String
+    location: {type: String, default: '---'}
 },
 {
     timestamps: true

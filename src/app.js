@@ -11,6 +11,7 @@ var app = express();
 
 var user_routes = require('./routes/User');
 var person_routes = require('./routes/Person');
+var service_routes = require('./routes/Service');
 
 //MIDDLEWARE
 app.use(bodyParser.urlencoded({extended: false}));
@@ -30,6 +31,6 @@ app.use((req, res, next) => {
 
 app.use('/api', user_routes);
 app.use('/api',person_routes);
-
+app.use('/api', service_routes);
 
 module.exports = app;
