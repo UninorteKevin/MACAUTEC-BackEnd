@@ -8,7 +8,8 @@ var SchemaService = Schema({
     description: {type:String, default: '---'},
     estimated_time: Number,
     price: Number,
-    status: {type: String, default: 'Disponible'}
+    status: {type: String, default: 'Disponible'},
+    mecanic: {type: Schema.ObjectId, default: null}
 },
 {
     timestamps: true

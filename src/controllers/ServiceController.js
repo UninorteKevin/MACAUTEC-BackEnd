@@ -3,7 +3,7 @@
 const Validator = require('validator');
 const MyResponse = require('../services/Utils');
 var Service = require('../models/Service');
-
+var User = require('../models/User');
 
 var Controller = {
     save: function(req, res){
@@ -27,31 +27,59 @@ var Controller = {
                     newService.estimated_time = params.estimated_time;
                     newService.price = params.price;
                     newService.status = params.status;
+                    newService.mecanic = params.mecanic;
 
-                    newService.save((err, success) => {
+                    User.findById(newService.mecanic).exec((err, mecanic) => {
                         if(err){
                             return res.status(MyResponse.CODE_ERROR).send({
                                 status: MyResponse.STATUS_ERROR,
                                 code: MyResponse.CODE_ERROR,
-                                message: 'Error al intentar registrar el servicio.',
+                                message: 'Error al intentar validar la informacion del mecanico.',
                                 define_error: 'Log (ServiceController.save): ' + err.message
                             });
                         }
 
-                        if(!success){
+                        if(!mecanic){
                             return res.status(MyResponse.CODE_WARNING).send({
                                 status: MyResponse.STATUS_WARNING,
                                 code: MyResponse.CODE_WARNING,
-                                message: 'No se pudo registrar el servicio. Verifique sus datos'
+                                message: 'No se encontro ningun usuario con el ID especificado.'
                             });
                         }
 
-                        return res.status(MyResponse.CODE_SUCCESS).send({
-                            status: MyResponse.STATUS_SUCCESS,
-                            code: MyResponse.CODE_SUCCESS,
-                            message: 'Servicio registrado correctamente.'
-                        });
-                    });
+                        if(mecanic.role == 'MECANICO' || mecanic.role == 'Mecanico' || mecanic.role == 'Mecanic'){
+                            newService.save((err, success) => {
+                                if(err){
+                                    return res.status(MyResponse.CODE_ERROR).send({
+                                        status: MyResponse.STATUS_ERROR,
+                                        code: MyResponse.CODE_ERROR,
+                                        message: 'Error al intentar registrar el servicio.',
+                                        define_error: 'Log (ServiceController.save): ' + err.message
+                                    });
+                                }
+        
+                                if(!success){
+                                    return res.status(MyResponse.CODE_WARNING).send({
+                                        status: MyResponse.STATUS_WARNING,
+                                        code: MyResponse.CODE_WARNING,
+                                        message: 'No se pudo registrar el servicio. Verifique sus datos'
+                                    });
+                                }
+        
+                                return res.status(MyResponse.CODE_SUCCESS).send({
+                                    status: MyResponse.STATUS_SUCCESS,
+                                    code: MyResponse.CODE_SUCCESS,
+                                    message: 'Servicio registrado correctamente.'
+                                });
+                            });
+                        } else 
+                            return res.status(MyResponse.CODE_WARNING).send({
+                                status: MyResponse.STATUS_WARNING,
+                                code: MyResponse.CODE_WARNING,
+                                message: 'El usuario no es un mecanico. valida su informacion'
+                            });
+                    })
+                    
                 } else
                     return res.status(MyResponse.CODE_WARNING).send({
                         status: MyResponse.STATUS_WARNING,
@@ -108,7 +136,7 @@ var Controller = {
     getService: function(req, res){
         try {
             const id = req.params.serviceId;
-            Service.findById({_id: id}).exec((err, service) => {
+            Service.findById({_id: id}).populate('mecanic').exec((err, service) => {
                 if(err){
                     return res.status(MyResponse.CODE_ERROR).send({
                         status: MyResponse.STATUS_ERROR,
@@ -180,7 +208,7 @@ var Controller = {
     },
 
     updateService: function(req, res){
-        const id = req.params.serviceId;
+        var id = req.params.serviceId;
         let params = req.body;
 
         try {
@@ -196,43 +224,75 @@ var Controller = {
                     
                     let newService = new Service();
                     
+                    newService._id = id;
                     newService.name = params.name;
                     newService.description = params.description;
                     newService.estimated_time = params.estimated_time;
                     newService.price = params.price;
                     newService.status = params.status;
+                    newService.mecanic_id = params.mecanic_id;
 
-                    Service.updateOne({_id: id}, newService).exec((err, success) => {
+                    User.findById(newService.mecanic_id).exec((err, mecanic) => {
+
                         if(err){
                             return res.status(MyResponse.CODE_ERROR).send({
                                 status: MyResponse.STATUS_ERROR,
                                 code: MyResponse.CODE_ERROR,
-                                message: 'Error al intentar modificar el servicio.',
+                                message: 'Error al intentar validar la informacion del mecanico.',
                                 define_error: 'Log (ServiceController.save): ' + err.message
                             });
                         }
 
-                        if(!success){
+                        if(!mecanic){
                             return res.status(MyResponse.CODE_WARNING).send({
                                 status: MyResponse.STATUS_WARNING,
                                 code: MyResponse.CODE_WARNING,
-                                message: 'No se pudo modificar el servicio. Verifique sus datos'
+                                message: 'No se encontro ningun usuario con el ID especificado.'
                             });
                         }
 
-                        return res.status(MyResponse.CODE_SUCCESS).send({
-                            status: MyResponse.STATUS_SUCCESS,
-                            code: MyResponse.CODE_SUCCESS,
-                            message: 'Se ha modificado el servicio correctamente.'
-                        });
+                        //Se valida si es ROL mecanico y se modifica el servicio
+                        if(mecanic.role == 'MECANICO' || mecanic.role == 'Mecanico' || mecanic.role == 'Mecanic'){
+                            Service.updateOne({_id: id}, newService).exec((err, success) => {
+                                if(err){
+                                    return res.status(MyResponse.CODE_ERROR).send({
+                                        status: MyResponse.STATUS_ERROR,
+                                        code: MyResponse.CODE_ERROR,
+                                        message: 'Error al intentar modificar el servicio.',
+                                        define_error: 'Log (ServiceController.save): ' + err.message
+                                    });
+                                }
+        
+                                if(!success){
+                                    return res.status(MyResponse.CODE_WARNING).send({
+                                        status: MyResponse.STATUS_WARNING,
+                                        code: MyResponse.CODE_WARNING,
+                                        message: 'No se pudo modificar el servicio. Verifique sus datos'
+                                    });
+                                }
+        
+                                return res.status(MyResponse.CODE_SUCCESS).send({
+                                    status: MyResponse.STATUS_SUCCESS,
+                                    code: MyResponse.CODE_SUCCESS,
+                                    message: 'Se ha modificado el servicio correctamente.'
+                                });
+                            });
+                        } else
+                            return res.status(MyResponse.CODE_WARNING).send({
+                                status: MyResponse.STATUS_WARNING,
+                                code: MyResponse.CODE_WARNING,
+                                message: 'El usuario no es un mecanico. valida su informacion'
+                            });
                     });
-                }
+                    
+                } else
+                    
+                return res.status(MyResponse.CODE_WARNING).send({
+                    status: MyResponse.STATUS_WARNING,
+                    code: MyResponse.CODE_WARNING,
+                    message: 'Faltan datos por enviar'
+                });
             
-            return res.status(MyResponse.CODE_WARNING).send({
-                status: MyResponse.STATUS_WARNING,
-                code: MyResponse.CODE_WARNING,
-                message: 'Faltan datos por enviar'
-            });
 
         } catch (error) {
             return res.status(MyResponse.CODE_ERROR).send({
@@ -242,7 +302,7 @@ var Controller = {
                 define_error: 'Log (ServiceController.save): ' + error.message
             });
         }
-    }
+    },
 }
 
 module.exports = Controller;
